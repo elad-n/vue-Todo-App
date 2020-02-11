@@ -7,14 +7,17 @@
             <div class="todo-item" v-for="(todo, index) in filteredTodos" v-bind:key="index">
                 <div class="label-container">
                     <input type="checkbox" v-model="todo.completed">
-                    <div v-bind:class="{ completed: todo.completed }"  v-if="!todo.editing" @dblclick="editTodo(todo)" class="todo-item-label" >{{ todo.title }}</div>
+                    <div v-bind:class="{ completed: todo.completed }" v-if="!todo.editing" @dblclick="editTodo(todo)" class="todo-item-label" >{{ todo.title }}</div>
                     <input v-else class="todo-item-edit" type="text" v-model="todo.title" @blur="doneEdit(todo)" @keyup.enter="doneEdit(todo)" v-focus>
                 </div>
             <div class="remove-todo" @click="removeTodo(index)">&times;</div>
             </div>
         </div>
 
-        <div v-if="!todosRemaining" class="all-done-container">All done</div>
+        <div class="message" v-if="showNoCompletedMessage">No completed tasks</div>
+        <div class="message" v-if="showNoActiveMessage">No active tasks</div>
+
+        <div v-if="!todoLists.length" class="all-done-container">All done</div>
 
         <div class="bottom-bar">
             <div class="btns-container">
@@ -25,6 +28,7 @@
             <div>todos remaining: {{todosRemaining}}</div>
         </div>
 
+        <div>Create by Elad Notti</div>
     </div>
 </template>
 
@@ -47,7 +51,7 @@
     },
     methods: {
       addTodo() {
-        if (this.currentTodo.trim() === 0) return;
+        if (this.currentTodo.trim().length === 0) return;
         this.todoLists.push({
           id: this.todoLists.length + 1,
           title: this.currentTodo,
@@ -67,7 +71,7 @@
       },
       toggleFilter(filter) {
         this.currentFilter = filter;
-      }
+      },
     },
     directives: {
       focus: {
@@ -86,6 +90,12 @@
       },
       todosRemaining: function () {
         return this.todoLists.filter(todo => !todo.completed).length
+      },
+      showNoCompletedMessage: function () {
+        return this.currentFilter === 'completed' && !this.filteredTodos.length && this.todoLists.length;
+      },
+      showNoActiveMessage: function () {
+        return this.currentFilter === 'active' && !this.filteredTodos.length && this.todoLists.length;
       }
   }
 
@@ -186,7 +196,7 @@
             color: grey;
         }
 
-        .all-done-container {
+        .all-done-container, .message {
             margin: 20px 0;
         }
     }
